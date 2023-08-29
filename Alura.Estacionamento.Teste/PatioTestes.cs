@@ -1,17 +1,29 @@
 ﻿using Alura.Estacionamento.Alura.Estacionamento.Modelos;
 using Alura.Estacionamento.Modelos;
 using Alura.Estacionamento.Teste.Data;
+using Xunit.Abstractions;
 
 namespace Alura.Estacionamento.Teste;
 
-public class PatioTestes
+public class PatioTestes : IDisposable
 {
+
+    private Veiculo veiculo;
+    public ITestOutputHelper SaidaConsoleTeste;
+
+    public PatioTestes(ITestOutputHelper _saidaConsoleTeste)
+    {
+        SaidaConsoleTeste = _saidaConsoleTeste;
+        SaidaConsoleTeste.WriteLine("Construtor invocado");
+        veiculo = new Veiculo();
+    }
+
     [Fact]
     public void ValidaFaturamento()
     {
         //arrange
         var estacionamento = new Patio();
-        var veiculo = new Veiculo();
+    //    var veiculo = new Veiculo(); -> o construtor faz o trabalho!
         veiculo.Proprietario = "abc";
         veiculo.Tipo = TipoVeiculo.Automovel;
         veiculo.Cor = "f";
@@ -84,4 +96,57 @@ public class PatioTestes
 
     }
 
+    [Theory]
+    [InlineData("abc", "aaa-9999", "cor", "modelo")]
+    public void LocalizaVeiculoNoPatioComBaseNaPlaca(string proprietario, string placa, string cor, string modelo)
+    {
+        //Arrange
+        Patio estacionamento = new Patio();
+        var veiculo = new Veiculo();
+        veiculo.Proprietario = proprietario;
+        veiculo.Cor = cor;
+        veiculo.Modelo = modelo;
+        veiculo.Placa = placa;
+
+        estacionamento.RegistrarEntradaVeiculo(veiculo);
+
+        //Act
+        var consultado = estacionamento.PesquisaVeiculo(placa);
+
+        //Assert
+        Assert.Equal(placa, consultado.Placa);
+    }
+
+    [Fact]
+    public void TestarAlterarDadosVeiculo()
+    {
+        //arrange
+        Patio estacionamento = new Patio();
+        var veiculo = new Veiculo();
+        veiculo.Proprietario = "abc";
+        veiculo.Tipo = TipoVeiculo.Automovel;
+        veiculo.Cor = "f";
+        veiculo.Modelo = "de";
+        veiculo.Placa = "aaa-9999";
+
+        estacionamento.RegistrarEntradaVeiculo(veiculo);
+
+        var veiculoAlterado = new Veiculo();
+        veiculoAlterado.Proprietario = "abc";
+        veiculoAlterado.Tipo = TipoVeiculo.Automovel;
+        veiculoAlterado.Cor = "f";
+        veiculoAlterado.Modelo = "defefr"; //alterado
+        veiculoAlterado.Placa = "aaa-9999";
+
+        //Act
+        Veiculo alterado = estacionamento.AlterarDadosVeiculo(veiculoAlterado);
+
+        //Assert
+        Assert.Equal(alterado.Modelo, veiculoAlterado.Modelo);
+    }
+
+    public void Dispose()
+    {
+        SaidaConsoleTeste.WriteLine("Dispose invocado");
+    }
 }
