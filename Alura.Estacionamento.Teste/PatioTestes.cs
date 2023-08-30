@@ -9,6 +9,7 @@ public class PatioTestes : IDisposable
 {
 
     private Veiculo veiculo;
+    private Operador operador;
     public ITestOutputHelper SaidaConsoleTeste;
 
     public PatioTestes(ITestOutputHelper _saidaConsoleTeste)
@@ -16,6 +17,8 @@ public class PatioTestes : IDisposable
         SaidaConsoleTeste = _saidaConsoleTeste;
         SaidaConsoleTeste.WriteLine("Construtor invocado");
         veiculo = new Veiculo();
+        operador = new Operador();
+        operador.Nome = "paula";
     }
 
     [Fact]
@@ -23,6 +26,7 @@ public class PatioTestes : IDisposable
     {
         //arrange
         var estacionamento = new Patio();
+        estacionamento.OperadorPatio = operador;
     //    var veiculo = new Veiculo(); -> o construtor faz o trabalho!
         veiculo.Proprietario = "abc";
         veiculo.Tipo = TipoVeiculo.Automovel;
@@ -49,6 +53,7 @@ public class PatioTestes : IDisposable
     {
         //arrange
         var estacionamento = new Patio();
+        estacionamento.OperadorPatio = operador;
         var veiculo = new Veiculo();
         veiculo.Proprietario = proprietario;
         //veiculo.Tipo = TipoVeiculo.Motocicleta; -> padrão é Automóvel (vezes 2)
@@ -75,6 +80,10 @@ public class PatioTestes : IDisposable
         var estacionamento1 = new Patio();
         var estacionamento2 = new Patio();
         var estacionamento3 = new Patio();
+        estacionamento1.OperadorPatio = operador;
+        estacionamento2.OperadorPatio = operador;
+        estacionamento3.OperadorPatio = operador;
+
         estacionamento1.RegistrarEntradaVeiculo(a);
         estacionamento1.RegistrarSaidaVeiculo(a.Placa);
 
@@ -98,10 +107,11 @@ public class PatioTestes : IDisposable
 
     [Theory]
     [InlineData("abc", "aaa-9999", "cor", "modelo")]
-    public void LocalizaVeiculoNoPatioComBaseNaPlaca(string proprietario, string placa, string cor, string modelo)
+    public void LocalizaVeiculoNoPatioComBaseNoIdTicket(string proprietario, string placa, string cor, string modelo)
     {
         //Arrange
         Patio estacionamento = new Patio();
+        estacionamento.OperadorPatio = operador;
         var veiculo = new Veiculo();
         veiculo.Proprietario = proprietario;
         veiculo.Cor = cor;
@@ -111,10 +121,10 @@ public class PatioTestes : IDisposable
         estacionamento.RegistrarEntradaVeiculo(veiculo);
 
         //Act
-        var consultado = estacionamento.PesquisaVeiculo(placa);
+        var consultado = estacionamento.PesquisaVeiculo(veiculo.IdTicket);
 
         //Assert
-        Assert.Equal(placa, consultado.Placa);
+        Assert.Contains("Ticket Estacionamento", consultado.Ticket);
     }
 
     [Fact]
@@ -122,6 +132,7 @@ public class PatioTestes : IDisposable
     {
         //arrange
         Patio estacionamento = new Patio();
+        estacionamento.OperadorPatio = operador;
         var veiculo = new Veiculo();
         veiculo.Proprietario = "abc";
         veiculo.Tipo = TipoVeiculo.Automovel;

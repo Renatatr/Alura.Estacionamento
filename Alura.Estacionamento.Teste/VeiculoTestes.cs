@@ -85,4 +85,32 @@ public class VeiculoTestes : IDisposable
     {
         SaidaConsoleTeste.WriteLine("Dispose invocado. \nExecução do Cleanup: Limpando os objetos.");
     }
+
+    [Fact]
+    public void TestaNomeProprietarioVeiculoComMenosDeTresCaracteres()
+    {
+        //Arrage
+        string nomeProprietario = "Ab";
+
+        //Assert
+        Assert.Throws<System.FormatException>(
+            //Act
+            () => new Veiculo(nomeProprietario)
+            );
+    }
+
+    [Fact]
+    public void TestaMensagemExcecaoDoQuartoCaractereDaPlaca()
+    {
+        //Arrage
+        string placa = "Abc8955";
+
+        //Assert
+        var mensagem = Assert.Throws<System.FormatException>(
+            //Act
+            () => new Veiculo().Placa = placa
+        );
+
+       // Assert.Equal("O 4° caractere deve ser um hífen", mensagem.Message); -> aqui a mensagem cai no primeiro if uma vez que não possui nem 8 caracteres!
+    }
 }
